@@ -13,24 +13,160 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  STUDENT 
+  TUTOR 
+  ADMIN
+}
 
-model Categories {
-  id String @id @default(uuid())
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  role Role 
+  status UserStatus @default(ACTIVE)
+  
+  tutorProfiles TutorProfile?
+  studentBookings Bookings[] @relation("StudentBookings")
+  tutorBookings Bookings[] @relation("TutorBookings")
+  reviews Reviews[] @relation("StudentReviews")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model TutorProfile {
+  id   String @id @default(uuid())
+  userId String @unique
+  bio String?
+  hourlyRate Float
+  rating Float @default(0)
+  totalReviews Int @default(0)
+
+  user User @relation(fields: [userId], references: [id])
+  categories Categories[] @relation("TutorCategories")
+  reviews Reviews[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("tutorProfiles")
+}
+
+model Categories {
+  id   String @id @default(uuid())
+  name String @unique
+
+  tutorProfiles TutorProfile[] @relation("TutorCategories")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+ 
+  @@map("categories")
 }
 
 model Bookings {
-  id String @id @default(uuid())
+  id        String        @id @default(uuid())
+  studentId String
+  tutorId   String
+  date      DateTime
+  status    BookingStatus @default(CONFIRMED)
+  review    String?
+
+  student User @relation("StudentBookings", fields: [studentId], references: [id])
+  tutor User @relation("TutorBookings", fields: [tutorId], references: [id])
+  reviews Reviews?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+
+  @@map("bookings")
+}
+
+enum BookingStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
 }
 
 model Reviews {
-  id String @id @default(uuid())
+  id      String  @id @default(uuid())
+  rating  Int
+  comment String?
+
+  bookingId String @unique
+  studentId String
+  tutorId   String
+
+  booking Bookings @relation(fields: [bookingId], references: [id])
+  student User @relation("StudentReviews", fields: [studentId], references: [id])
+  tutor TutorProfile @relation(fields: [tutorId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("reviews") 
 }
