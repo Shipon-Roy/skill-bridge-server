@@ -13,11 +13,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  STUDENT 
-  TUTOR 
-  ADMIN
-}
 
 enum UserStatus {
   ACTIVE
@@ -36,7 +31,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  role Role 
+  role   String? @default("USER")
   status UserStatus @default(ACTIVE)
   
   tutorProfiles TutorProfile?

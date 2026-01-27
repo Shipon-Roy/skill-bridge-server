@@ -2,6 +2,8 @@ import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
+import { notFound } from "./middlewares/notFound";
+import golobalErrorHandler from "./middlewares/golobalErrorHandler";
 
 const app = express();
 
@@ -19,5 +21,8 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Hey! I am Skill Bridge server");
 });
+
+app.use(notFound);
+app.use(golobalErrorHandler);
 
 export default app;
