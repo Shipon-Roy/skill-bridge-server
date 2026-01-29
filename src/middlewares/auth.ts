@@ -29,7 +29,7 @@ const auth = (...roles: Role[]) => {
       const session = await betterAuth.api.getSession({
         headers: req.headers as any,
       });
-
+      console.log(session);
       if (!session) {
         return res.status(401).json({
           success: false,
@@ -48,7 +48,7 @@ const auth = (...roles: Role[]) => {
         id: session.user.id,
         name: session.user.name,
         email: session.user.email,
-        role: session.user.role as string,
+        role: session.user.role,
         emailVerified: session.user.emailVerified,
       };
 

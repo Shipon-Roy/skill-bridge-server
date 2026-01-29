@@ -13,6 +13,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  STUDENT
+  TUTOR
+  ADMIN
+}
 
 enum UserStatus {
   ACTIVE
@@ -26,13 +31,17 @@ model User {
   email         String
   emailVerified Boolean   @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
 
-  role   String? @default("USER")
+  role Role @default(STUDENT)
   status UserStatus @default(ACTIVE)
+
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt 
+  accounts      Account[]
+  sessions Session[]
+
+  
   
   tutorProfiles TutorProfile?
   studentBookings Bookings[] @relation("StudentBookings")
