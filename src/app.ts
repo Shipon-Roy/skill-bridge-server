@@ -5,6 +5,7 @@ import cors from "cors";
 import { notFound } from "./middlewares/notFound";
 import golobalErrorHandler from "./middlewares/golobalErrorHandler";
 import { tutorRouter } from "./modules/tutor/tutor.router";
+import { categoryRouter } from "./modules/category/category.routes";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
 
 app.use("/tutors", tutorRouter);
+app.use("/categorys", categoryRouter);
 
 app.get("/", (req, res) => {
   res.send("Hey! I am Skill Bridge server");

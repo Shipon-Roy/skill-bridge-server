@@ -4,6 +4,7 @@ import auth, { UserRole } from "../../middlewares/auth";
 
 const router = express.Router();
 
+router.get("/", tutorController.getTutors);
 router.post(
   "/",
   auth(UserRole.ADMIN, UserRole.TUTOR),

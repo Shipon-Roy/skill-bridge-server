@@ -1,7 +1,38 @@
 import { prisma } from "../../lib/prisma";
 
+const getTutors = (filters: any) => {
+  const where: any = {};
+
+  if (filters?.price) {
+    where.pricePerHr = {
+      lte: Number(filters.price),
+    };
+  }
+
+  if (filters?.rating) {
+    where.rating = {
+      gte: Number(filters.rating),
+    };
+  }
+
+  if (filters?.category) {
+    where.categories = {
+      some: {
+        name: filters.category,
+      },
+    };
+  }
+
+  return prisma.tutorProfile.findMany({
+    where,
+    include: {
+      user: true,
+      categories: true,
+    },
+  });
+};
+
 const createProfile = async (userId: string, data: any) => {
-  // Check user exists
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -10,7 +41,6 @@ const createProfile = async (userId: string, data: any) => {
     throw new Error("User not found");
   }
 
-  // Prevent duplicate tutor profile
   const existingProfile = await prisma.tutorProfile.findUnique({
     where: { userId },
   });
@@ -19,7 +49,6 @@ const createProfile = async (userId: string, data: any) => {
     throw new Error("Tutor profile already exists");
   }
 
-  // Validate categories
   if (!data.categoryIds || data.categoryIds.length === 0) {
     throw new Error("At least one category is required");
   }
@@ -34,12 +63,15 @@ const createProfile = async (userId: string, data: any) => {
     throw new Error("One or more categories not found");
   }
 
-  // Create tutor profile
   return prisma.tutorProfile.create({
     data: {
-      userId,
       bio: data.bio,
       pricePerHr: Number(data.pricePerHr),
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
       categories: {
         connect: data.categoryIds.map((id: string) => ({ id })),
       },
@@ -52,5 +84,6 @@ const createProfile = async (userId: string, data: any) => {
 };
 
 export const tutorService = {
+  getTutors,
   createProfile,
 };

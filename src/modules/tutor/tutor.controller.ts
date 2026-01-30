@@ -1,5 +1,13 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { tutorService } from "./tutor.service";
+
+const getTutors = async (req: Request, res: Response) => {
+  const tutors = await tutorService.getTutors(req.query);
+  res.status(200).json({
+    success: true,
+    data: tutors,
+  });
+};
 
 const createTutorProfile = async (req: Request, res: Response) => {
   try {
@@ -24,5 +32,6 @@ const createTutorProfile = async (req: Request, res: Response) => {
 };
 
 export const tutorController = {
+  getTutors,
   createTutorProfile,
 };
