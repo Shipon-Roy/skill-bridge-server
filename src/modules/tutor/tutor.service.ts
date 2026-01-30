@@ -32,6 +32,18 @@ const getTutors = (filters: any) => {
   });
 };
 
+const getTutorById = (id: string) => {
+  return prisma.tutorProfile.findUnique({
+    where: { id },
+    include: {
+      user: true,
+      categories: true,
+      availability: true,
+      reviews: true,
+    },
+  });
+};
+
 const createProfile = async (userId: string, data: any) => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -83,7 +95,78 @@ const createProfile = async (userId: string, data: any) => {
   });
 };
 
+const updateTutorProfile = (userId: string, data: any) => {
+  return prisma.tutorProfile.update({
+    where: { userId },
+    data: {
+      bio: data.bio,
+      pricePerHr: data.pricePerHr,
+      categories: {
+        set: data.categoryIds.map((id: string) => ({ id })) || [],
+      },
+    },
+  });
+};
+
+const setAvailability = async (userId: string, slots: any[]) => {
+  const tutor = await prisma.tutorProfile.findUnique({
+    where: {
+      userId,
+    },
+  });
+
+  await prisma.availability.deleteMany({
+    where: { tutorId: tutor!.id },
+  });
+
+  return prisma.availability.createMany({
+    data: slots.map((slot) => ({
+      tutorId: tutor!.id,
+      day: slot.day,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+    })),
+  });
+};
+
+const getAvailability = async (userId: string) => {
+  const tutor = await prisma.tutorProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!tutor) throw new Error("Tutor not found");
+
+  return prisma.availability.findMany({
+    where: { tutorId: tutor.id },
+    orderBy: [{ day: "asc" }, { startTime: "asc" }],
+  });
+};
+
+const getTutorDashboard = async () => {
+  return await prisma.tutorProfile.findMany({
+    select: {
+      userId: true,
+      id: true,
+      bio: true,
+      pricePerHr: true,
+      rating: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  });
+};
+
 export const tutorService = {
   getTutors,
+  getTutorById,
   createProfile,
+  updateTutorProfile,
+  setAvailability,
+  getAvailability,
+  getTutorDashboard,
 };

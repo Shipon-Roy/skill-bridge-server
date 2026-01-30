@@ -9,6 +9,14 @@ const getTutors = async (req: Request, res: Response) => {
   });
 };
 
+const getTutorById = async (req: Request, res: Response) => {
+  const tutor = await tutorService.getTutorById(req.params.id as any);
+  res.status(200).json({
+    success: true,
+    data: tutor,
+  });
+};
+
 const createTutorProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -31,7 +39,72 @@ const createTutorProfile = async (req: Request, res: Response) => {
   }
 };
 
+const updateTutorProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const profile = await tutorService.updateTutorProfile(
+      userId as string,
+      req.body,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Tutor profile updated",
+      data: profile,
+    });
+  } catch (error: any) {
+    res.status(404).json({
+      success: false,
+      message: error.message || "Tutor profile update failed",
+    });
+  }
+};
+
+const setAvailability = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const availability = await tutorService.setAvailability(
+    userId as string,
+    req.body,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Availability updated",
+    data: availability,
+  });
+};
+
+const getAvailability = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const availability = await tutorService.getAvailability(userId as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Availability fetched",
+      data: availability,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getTutorDashboard = async (req: Request, res: Response) => {
+  const tutors = await tutorService.getTutorDashboard();
+
+  res.status(200).json({
+    success: true,
+    message: "All Tutors retrieved successfully",
+    data: tutors,
+  });
+};
+
 export const tutorController = {
   getTutors,
+  getTutorById,
   createTutorProfile,
+  updateTutorProfile,
+  setAvailability,
+  getAvailability,
+  getTutorDashboard,
 };
