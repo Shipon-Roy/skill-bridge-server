@@ -13,42 +13,25 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  STUDENT
-  TUTOR
-  ADMIN
-}
-
-enum UserStatus {
-  ACTIVE
-  BANNED
-}
-
-
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String?
+  isBanned  Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  role Role @default(STUDENT)
-  status UserStatus @default(ACTIVE)
+  tutorProfile    TutorProfile?
+  studentBookings Booking[]     @relation("StudentBookings")
+  reviews         Review[]
+  emailVerified   Boolean       @default(false)
+  image           String?
+  updatedAt       DateTime      @updatedAt
+  sessions        Session[]
+  accounts        Account[]
 
+  role String? @default("STUDENT")
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt 
-  accounts      Account[]
-  sessions Session[]
-
-  
-  
-  tutorProfiles TutorProfile?
-  studentBookings Bookings[] @relation("StudentBookings")
-  tutorBookings Bookings[] @relation("TutorBookings")
-  reviews Reviews[] @relation("StudentReviews")
-
-  @@unique([email])
   @@map("user")
 }
 
@@ -100,77 +83,65 @@ model Verification {
   @@map("verification")
 }
 
-model TutorProfile {
-  id   String @id @default(uuid())
-  userId String @unique
-  bio String?
-  hourlyRate Float
-  rating Float @default(0)
-  totalReviews Int @default(0)
-
-  user User @relation(fields: [userId], references: [id])
-  categories Categories[] @relation("TutorCategories")
-  reviews Reviews[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("tutorProfiles")
-}
-
-model Categories {
-  id   String @id @default(uuid())
-  name String @unique
-
-  tutorProfiles TutorProfile[] @relation("TutorCategories")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
- 
-  @@map("categories")
-}
-
-model Bookings {
+model Booking {
   id        String        @id @default(uuid())
   studentId String
   tutorId   String
-  date      DateTime
-  status    BookingStatus @default(CONFIRMED)
-  review    String?
+  status    BookingStatus @default(UPCOMING)
+  createdAt DateTime      @default(now())
 
-  student User @relation("StudentBookings", fields: [studentId], references: [id])
-  tutor User @relation("TutorBookings", fields: [tutorId], references: [id])
-  reviews Reviews?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-
-  @@map("bookings")
+  student User         @relation("StudentBookings", fields: [studentId], references: [id])
+  tutor   TutorProfile @relation(fields: [tutorId], references: [id])
 }
 
+
 enum BookingStatus {
-  CONFIRMED
+  UPCOMING
   COMPLETED
   CANCELLED
 }
 
-model Reviews {
-  id      String  @id @default(uuid())
-  rating  Int
-  comment String?
+model TutorProfile {
+  id         String @id @default(uuid())
+  userId     String @unique
+  bio        String
+  pricePerHr Int
+  rating     Float  @default(0)
 
-  bookingId String @unique
+  user         User           @relation(fields: [userId], references: [id])
+  categories   Category[]
+  availability Availability[]
+  bookings     Booking[]
+  reviews      Review[]
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+
+  tutors TutorProfile[]
+}
+
+model Availability {
+  id        String @id @default(uuid())
+  tutorId   String
+  day       String
+  startTime String
+  endTime   String
+
+  tutor TutorProfile @relation(fields: [tutorId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+
   studentId String
   tutorId   String
 
-  booking Bookings @relation(fields: [bookingId], references: [id])
-  student User @relation("StudentReviews", fields: [studentId], references: [id])
-  tutor TutorProfile @relation(fields: [tutorId], references: [id])
+  student User         @relation(fields: [studentId], references: [id])
+  tutor   TutorProfile @relation(fields: [tutorId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("reviews") 
 }

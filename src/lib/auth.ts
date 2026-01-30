@@ -12,12 +12,24 @@ export const auth = betterAuth({
       role: {
         type: "string",
         defaultValue: "STUDENT",
-        required: true,
+        required: false,
       },
-      status: {
+
+      isBanned: {
+        type: "boolean",
+        defaultValue: false,
+        required: false,
+      },
+
+      image: {
         type: "string",
-        defaultValue: "ACTIVE",
-        required: true,
+        required: false,
+      },
+
+      emailVerified: {
+        type: "boolean",
+        defaultValue: false,
+        required: false,
       },
     },
   },

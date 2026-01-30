@@ -1,9 +1,13 @@
 import express from "express";
 import { tutorController } from "./tutor.controller";
-import auth, { Role } from "../../middlewares/auth";
+import auth, { UserRole } from "../../middlewares/auth";
 
 const router = express.Router();
 
-router.post("/", auth(Role.ADMIN, Role.TUTOR), tutorController.createTutor);
+router.post(
+  "/",
+  auth(UserRole.ADMIN, UserRole.TUTOR),
+  tutorController.createTutorProfile,
+);
 
 export const tutorRouter = router;

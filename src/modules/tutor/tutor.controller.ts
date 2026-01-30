@@ -1,23 +1,28 @@
 import { NextFunction, Request, Response } from "express";
-import { tutorSerive } from "./tutor.service";
+import { tutorService } from "./tutor.service";
 
-const createTutor = async (req: Request, res: Response, next: NextFunction) => {
+const createTutorProfile = async (req: Request, res: Response) => {
   try {
-    const user = req.user;
-    if (!user) {
-      return res.status(400).json({
-        error: "!Unauthorized!!!",
-      });
-    }
+    const userId = req.user?.id;
 
-    const result = await tutorSerive.createTutor(req.body, user?.id);
+    const profile = await tutorService.createProfile(
+      userId as string,
+      req.body,
+    );
 
-    res.status(201).json(result);
-  } catch (err) {
-    next(err);
+    res.status(201).json({
+      success: true,
+      message: "Tutor profile created successfully",
+      data: profile,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message || "Failed to create tutor profile",
+    });
   }
 };
 
 export const tutorController = {
-  createTutor,
+  createTutorProfile,
 };
