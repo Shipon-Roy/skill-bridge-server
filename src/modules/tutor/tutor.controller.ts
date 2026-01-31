@@ -60,6 +60,35 @@ const updateTutorProfile = async (req: Request, res: Response) => {
   }
 };
 
+const setAvailability = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const availability = await tutorService.setAvailability(
+    userId as string,
+    req.body,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Availability updated",
+    data: availability,
+  });
+};
+
+const getAvailability = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const availability = await tutorService.getAvailability(userId as string);
+
+    res.status(200).json({
+      success: true,
+      message: "Availability fetched",
+      data: availability,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const getTutorDashboard = async (req: Request, res: Response) => {
   const tutors = await tutorService.getTutorDashboard();
 
@@ -75,5 +104,7 @@ export const tutorController = {
   getTutorById,
   createTutorProfile,
   updateTutorProfile,
+  setAvailability,
+  getAvailability,
   getTutorDashboard,
 };

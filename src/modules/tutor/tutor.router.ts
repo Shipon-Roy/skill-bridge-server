@@ -23,4 +23,15 @@ router.put(
   tutorController.updateTutorProfile,
 );
 
+router.get(
+  "/availability",
+  auth(UserRole.TUTOR, UserRole.ADMIN),
+  tutorController.getAvailability,
+);
+router.put(
+  "/availability",
+  auth(UserRole.TUTOR, UserRole.ADMIN),
+  tutorController.setAvailability,
+);
+
 export const tutorRouter = router;
