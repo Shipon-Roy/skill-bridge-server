@@ -26,7 +26,7 @@ app.use("/api/auth", authRouter);
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
-app.use("/tutors", tutorRouter);
+app.use("/api/tutors", tutorRouter);
 app.use("/categorys", categoryRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/reviews", reviewRouter);

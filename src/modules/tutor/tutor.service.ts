@@ -108,40 +108,6 @@ const updateTutorProfile = (userId: string, data: any) => {
   });
 };
 
-const setAvailability = async (userId: string, slots: any[]) => {
-  const tutor = await prisma.tutorProfile.findUnique({
-    where: {
-      userId,
-    },
-  });
-
-  await prisma.availability.deleteMany({
-    where: { tutorId: tutor!.id },
-  });
-
-  return prisma.availability.createMany({
-    data: slots.map((slot) => ({
-      tutorId: tutor!.id,
-      day: slot.day,
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-    })),
-  });
-};
-
-const getAvailability = async (userId: string) => {
-  const tutor = await prisma.tutorProfile.findUnique({
-    where: { userId },
-  });
-
-  if (!tutor) throw new Error("Tutor not found");
-
-  return prisma.availability.findMany({
-    where: { tutorId: tutor.id },
-    orderBy: [{ day: "asc" }, { startTime: "asc" }],
-  });
-};
-
 const getTutorDashboard = async () => {
   return await prisma.tutorProfile.findMany({
     select: {
@@ -166,7 +132,5 @@ export const tutorService = {
   getTutorById,
   createProfile,
   updateTutorProfile,
-  setAvailability,
-  getAvailability,
   getTutorDashboard,
 };
