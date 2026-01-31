@@ -22,7 +22,7 @@ app.use(
 
 app.use(express.json());
 
-// app.use("/api/auth", authRouter);
+app.use("/api/auth", authRouter);
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
