@@ -9,6 +9,7 @@ import { categoryRouter } from "./modules/category/category.routes";
 import { bookingRouter } from "./modules/booking/booking.router";
 import { reviewRouter } from "./modules/review/review.router";
 import { authRouter } from "./modules/auth/auth.router";
+import { adminRouter } from "./modules/admin/admin.router";
 
 const app = express();
 
@@ -19,15 +20,17 @@ app.use(
   }),
 );
 
-app.use("/api/auth", authRouter);
-app.all("/api/auth/*splat", toNodeHandler(auth));
-
 app.use(express.json());
+
+// app.use("/api/auth", authRouter);
+
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use("/tutors", tutorRouter);
 app.use("/categorys", categoryRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/reviews", reviewRouter);
+app.use("/api/admin", adminRouter);
 
 app.get("/", (req, res) => {
   res.send("Hey! I am Skill Bridge server");
