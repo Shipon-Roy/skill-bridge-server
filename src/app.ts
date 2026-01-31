@@ -6,6 +6,7 @@ import { notFound } from "./middlewares/notFound";
 import golobalErrorHandler from "./middlewares/golobalErrorHandler";
 import { tutorRouter } from "./modules/tutor/tutor.router";
 import { categoryRouter } from "./modules/category/category.routes";
+import { bookingRouter } from "./modules/booking/booking.router";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 
 app.use("/tutors", tutorRouter);
 app.use("/categorys", categoryRouter);
+app.use("/api/bookings", bookingRouter);
 
 app.get("/", (req, res) => {
   res.send("Hey! I am Skill Bridge server");
